@@ -2,6 +2,7 @@
 
 namespace CrCms\Upload;
 
+use CrCms\Upload\Exceptions\SizeException;
 use CrCms\Upload\Exceptions\UploadException;
 use CrCms\Upload\Contracts\FileUpload as FileUploadContract;
 use Illuminate\Contracts\Config\Repository as Config;
@@ -35,8 +36,9 @@ class PlUpload extends FileUpload implements FileUploadContract
 
         $this->setName();
 
-        $this->uploadHandler->checkUploadFile();//or
-        //$this->checkFileExtension()->checkFileMime()->checkFileSize()->checkUploadedFile()->checkUploadSelf()
+        //$this->uploadHandler->checkUploadFile();//or
+        $this->uploadHandler->checkFileExtension()->checkFileMime()->checkUploadedFile()->checkUploadSelf();
+        $this->checkFileSize();
 
         $this->uploadHandler->setPath($path);
         $this->moveUploadFile();
@@ -44,7 +46,19 @@ class PlUpload extends FileUpload implements FileUploadContract
         return $this->uploadHandler->getUploadInfo();
     }
 
+    /**
+     *
+     */
+    protected function checkFileSize()
+    {
+        if ($this->uploadHandler->getFileSize() < intval($_REQUEST[$this->config->get('upload.plupload.size_name')])) {
+            throw new SizeException($this->uploadHandler->getName());
+        }
+    }
 
+    /**
+     * @return PlUpload
+     */
     public function setName(): self
     {
         $this->uploadHandler->setName(addslashes($_REQUEST[$this->config->get('upload.plupload.old_name')]));
