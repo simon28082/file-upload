@@ -3,6 +3,7 @@
 namespace CrCms\Upload;
 
 use CrCms\Upload\Contracts\FileUpload as FileUploadContract;
+use Illuminate\Contracts\Config\Repository as Config;
 
 /**
  * Class FileUpload
@@ -18,6 +19,11 @@ class FileUpload implements FileUploadContract
     protected $files = [];
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * @var UploadHandler
      */
     protected $uploadHandler;
@@ -27,35 +33,35 @@ class FileUpload implements FileUploadContract
      * @param UploadHandler $uploadHandle
      * @param array $config
      */
-    public function __construct(UploadHandler $uploadHandle, array $config = [])
+    public function __construct(Config $config, UploadHandler $uploadHandle)
     {
         set_time_limit(5 * 60);
 
         $this->uploadHandler = $uploadHandle;
+        $this->config = $config;
 
-        if ($config) $this->config($config);
+        $this->config($this->config->get('upload.default'));
     }
 
     /**
      * @param array $config
      * @return FileUpload
      */
-    public function config(array $config): self
+    public function config(string $uploadType): self
     {
         $allowFunc = [
-            'file_size' => 'setFileSize',
-            'rename' => 'setRename',
-            'check_mime' => 'setCheckMime',
-            //'mimes' => 'setMimes',
-            'check_extension' => 'setCheckExtension',
-            'extensions' => 'setExtensions',
-            'hash_dir_layer' => 'setHashDirLayer',
-            'path' => 'setPath',
+            'setFileSize',
+            'setRename',
+            'setCheckMime',
+            'setCheckExtension',
+            'setExtensions',
+            'setHashDirLayer',
+            'setPath',
         ];
 
-        foreach ($config as $key => $value) {
-            if (in_array($key, array_keys($allowFunc), true)) {
-                call_user_func([$this, $allowFunc[$key]], $value);
+        foreach ($this->config->get("upload.uploads.{$uploadType}") as $key => $value) {
+            if (in_array($key, $allowFunc, true)) {
+                call_user_func([$this, $key], $value);
             }
         }
 

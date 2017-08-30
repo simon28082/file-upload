@@ -1,31 +1,24 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: simon
- * Date: 2016/9/27
- * Time: 10:29
- */
 
 namespace CrCms\Upload;
 
-use Simon\Upload\Exceptions\UploadException;
-use Simon\Upload\Contracts\FileUpload as FileUploadInterface;
+use CrCms\Upload\Exceptions\UploadException;
+use CrCms\Upload\Contracts\FileUpload as FileUploadContract;
+use Illuminate\Contracts\Config\Repository as Config;
 
-class PlUpload extends FileUpload implements FileUploadInterface
+class PlUpload extends FileUpload implements FileUploadContract
 {
-    protected $currentChunk = 0;
+    protected $currentChunk;
 
-    protected $totalChunk = 0;
+    protected $totalChunk;
 
     protected $status = 0;
 
 
-    public function __construct(UploadHandler $uploadHandle, array $config = [])
+    public function __construct(Config $config,UploadHandler $uploadHandle)
     {
-        parent::__construct($uploadHandle, $config);
-
+        parent::__construct($config,$uploadHandle);
         $this->defaultHeader();
-
         $this->setChunk();
     }
 
@@ -54,7 +47,7 @@ class PlUpload extends FileUpload implements FileUploadInterface
 
     public function setName(): self
     {
-        $this->uploadHandler->setName(addslashes($_REQUEST['old_name']));
+        $this->uploadHandler->setName(addslashes($_REQUEST[$this->config->get('upload.plupload.old_name')]));
 
         return $this;
     }
@@ -65,8 +58,8 @@ class PlUpload extends FileUpload implements FileUploadInterface
      */
     public function setChunk()
     {
-        $this->currentChunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
-        $this->totalChunk = isset($_REQUEST["chunks"]) ? intval($_REQUEST["chunks"]) : 0;
+        $this->currentChunk = isset($_REQUEST[$this->config->get('upload.plupload.chunk_name')]) ? intval($_REQUEST[$this->config->get('upload.plupload.chunk_name')]) : 0;
+        $this->totalChunk = isset($_REQUEST[$this->config->get('upload.plupload.chunks_name')]) ? intval($_REQUEST[$this->config->get('upload.plupload.chunks_name')]) : 0;
     }
 
     /**
