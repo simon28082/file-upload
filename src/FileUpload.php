@@ -2,13 +2,15 @@
 
 namespace CrCms\Upload;
 
+use CrCms\Upload\Contracts\FileUpload as FileUploadContract;
+
 /**
  * Class FileUpload
  *
  * @package CrCms\Upload
  * $this->config()->setNewName(function($oldName){...})->upload()
  */
-class FileUpload implements \CrCms\Upload\Contracts\FileUpload
+class FileUpload implements FileUploadContract
 {
     /**
      * @var array
@@ -18,7 +20,7 @@ class FileUpload implements \CrCms\Upload\Contracts\FileUpload
     /**
      * @var UploadHandler
      */
-    protected $uploadHandler = null;
+    protected $uploadHandler;
 
     /**
      * FileUpload constructor.

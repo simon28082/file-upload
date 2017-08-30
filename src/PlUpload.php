@@ -6,7 +6,7 @@
  * Time: 10:29
  */
 
-namespace Simon\Upload;
+namespace CrCms\Upload;
 
 use Simon\Upload\Exceptions\UploadException;
 use Simon\Upload\Contracts\FileUpload as FileUploadInterface;

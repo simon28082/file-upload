@@ -203,7 +203,7 @@ class UploadHandler
         }
 
         $dirs = $this->getHashDir($this->name);
-        $newName = $this->getNewName() ?: $this->getDefaultNewName($this->name);
+        $newName = $this->getNewName($this->name);
         $this->path = $this->path . DIRECTORY_SEPARATOR . $dirs . $newName;
 
         return $this;
@@ -294,19 +294,18 @@ class UploadHandler
     public function getUploadInfo()
     {
         $file = [];
-        $file['new_name'] = $this->file->getBasename();
+        $file['new_name'] = $this->file->getFilename();
         $file['hash'] = sha1($this->file->getRealPath());
         $file['old_name'] = $this->name;
-        $file['save_path'] = $this->file->getPath();
+        $file['save_path'] = $this->file->getPathname();
         $file['full_path'] = $this->file->getRealPath();
         $file['full_root'] = str_replace(dirname(getenv('SCRIPT_FILENAME')), '', $this->file->getRealPath());
         $file['extension'] = $this->file->getExtension();
-        $file['mime_type'] = $this->file->getFileMime();
+        $file['mime_type'] = $this->file->getMime();
         $file['file_size'] = $this->file->getSize();
         $file['complete_time'] = time();
         list($usec, $sec) = explode(" ", microtime());
         $file['complete_microtime'] = (float)$usec + (float)$sec;
-
         return $file;
     }
 
@@ -335,7 +334,7 @@ class UploadHandler
     {
         if ($this->getCheckMime()) {
             $mime = $this->getExtensionMime($this->extension);
-            if ($mime !== $this->file->getFileMime()) {
+            if ($mime !== $this->file->getMime()) {
                 throw new TypeErrorException($this->name, 'mime');
             }
         }

@@ -19,20 +19,20 @@ class File
      * File constructor.
      * @param string $path
      */
-    public function __construct(string $filePath = '')
+    public function __construct(string $filePath)
     {
-        if ($filePath) $this->setFile($filePath);
+        $this->splFileInfo = new \SplFileInfo($filePath);
     }
 
     /**
      * @param string $filePath
      * @return File
      */
-    public function setFile(string $filePath): self
+    /*public function setFile(string $filePath): self
     {
-        $this->splFileInfo = new \SplFileInfo($filePath);
+
         return $this;
-    }
+    }*/
 
     /**
      * @return string
@@ -40,7 +40,7 @@ class File
     public function getMime(): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        return finfo_file($finfo, $this->splFileInfo->getPath());
+        return finfo_file($finfo, $this->splFileInfo->getPathname());
     }
 
     /**

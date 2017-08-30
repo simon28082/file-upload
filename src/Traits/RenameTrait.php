@@ -18,7 +18,7 @@ trait RenameTrait
     /**
      * @var string
      */
-    protected $newName = '';
+    protected $newName;
 
     /**
      * set is rename
@@ -41,10 +41,15 @@ trait RenameTrait
     }
 
     /**
+     * @param string $oldName
      * @return string
      */
-    public function getNewName(): string
+    public function getNewName(string $oldName = ''): string
     {
+        if (empty($this->newName) && !empty($oldName)) {
+            return $this->getDefaultNewName($oldName);
+        }
+
         return $this->newName;
     }
 
