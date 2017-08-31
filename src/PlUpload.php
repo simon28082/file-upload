@@ -29,7 +29,7 @@ class PlUpload extends FileUpload implements FileUploadContract
      * @param string $path
      * @return array
      */
-    public function handle(array $fileInfo, string $path = ''): array
+    public function handle(array $fileInfo): array
     {
         $this->uploadHandler->setUploadFile($fileInfo);//or
         //$this->setName()->setTemp()->setSize()->setError()->setExtension();
@@ -40,8 +40,9 @@ class PlUpload extends FileUpload implements FileUploadContract
         $this->uploadHandler->checkFileExtension()->checkFileMime()->checkUploadedFile()->checkUploadSelf();
         $this->checkFileSize();
 
-        $this->uploadHandler->setPath($path);
-        $this->moveUploadFile();
+        $this->uploadHandler->upload();
+//        $this->uploadHandler->setFullPath();
+//        $this->moveUploadFile();
 
         return $this->uploadHandler->getUploadInfo();
     }

@@ -56,10 +56,15 @@ class UploadHandler
     protected $type;
 
     /**
-     * new file path
+     * upload path
      * @var string
      */
     protected $path = './uploads';
+
+    /**
+     * @var string
+     */
+    protected $fullPath;
 
     /**
      * @var null|FileUpload
@@ -115,11 +120,12 @@ class UploadHandler
 
     /**
      * @param string $filePath
+     * @return $this
      */
     protected function setFile(string $filePath)
     {
         $this->file = new File($filePath);
-        return;
+        return $this;
     }
 
     /**
@@ -202,10 +208,6 @@ class UploadHandler
             $this->path = $path;
         }
 
-        $dirs = $this->getHashDir($this->name);
-        $newName = $this->getNewName($this->name);
-        $this->path = $this->path . DIRECTORY_SEPARATOR . $dirs . $newName;
-
         return $this;
     }
 
@@ -241,10 +243,9 @@ class UploadHandler
 
     /**
      * @param array $fileInfo
-     * @param string $path
      * @return array
      */
-    public function handle(array $fileInfo, string $path = ''): array
+    public function handle(array $fileInfo): array
     {
         $this->setUploadFile($fileInfo);//or
         //$this->setName()->setTemp()->setSize()->setError()->setExtension();
@@ -252,7 +253,7 @@ class UploadHandler
         $this->checkUploadFile();//or
         //$this->checkFileExtension()->checkFileMime()->checkFileSize()->checkUploadedFile()->checkUploadSelf()
 
-        $this->upload($path);//or
+        $this->upload();//or
         //$this->setPath($path)->moveUploadFile();
 
         return $this->getUploadInfo();
@@ -263,14 +264,26 @@ class UploadHandler
      */
     public function moveUploadFile(): self
     {
-        $path = dirname($this->path);
+        $path = dirname($this->fullPath);
         is_dir($path) || $this->createDir($path);
 
-        if (!move_uploaded_file($this->temp, $this->path)) {
+        if (!move_uploaded_file($this->temp, $this->fullPath)) {
             throw new UploadException($this->name, UploadException::MOVE_TMP_FILE_ERR);
         }
 
-        $this->setFile($this->path);
+        $this->setFile($this->fullPath);
+
+        return $this;
+    }
+
+    /**
+     *
+     */
+    public function setFullPath(): string
+    {
+        $dirs = $this->getHashDir($this->name);
+        $newName = $this->getNewName($this->name);
+        $this->fullPath = $this->path . DIRECTORY_SEPARATOR . $dirs . $newName;
 
         return $this;
     }
@@ -279,9 +292,9 @@ class UploadHandler
      * @param string $path
      * @return UploadHandler
      */
-    public function upload(string $path = ''): self
+    public function upload(): self
     {
-        $this->setPath($path);
+        $this->setFullPath();
 
         $this->moveUploadFile();
 
