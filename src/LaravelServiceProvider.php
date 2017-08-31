@@ -28,8 +28,8 @@ class LaravelServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            $this->packagePath . 'config' => config_path('upload.php'),
-        ],static::class);
+            $this->packagePath . 'config' => config_path(),
+        ]);
     }
 
     /**
