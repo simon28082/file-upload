@@ -9,7 +9,7 @@ return [
         'default' => [
             'driver' => \CrCms\Upload\Drives\DefaultUpload::class,//
             'options' => [
-                'setFileSize' => 2000000,
+                'setFileSize' => 1024 * 1024 * 2,
                 'setRename' => true,
                 'setCheckMime' => true,
                 'setCheckExtension' => true,
