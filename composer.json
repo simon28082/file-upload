@@ -1,21 +1,26 @@
 {
-    "name": "crcms/file-upload",
-    "keywords": ["php", "upload"],
-    "description": "php file upload",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "crcms",
-            "email": "crcms@crcms.cn"
-        }
-    ],
-	"require": {
-		"php":">=7.0.0",
-        "illuminate/config":"^5.2"
-	},
-	"autoload":{
-		"psr-4": {
-            "CrCms\\Upload\\": "src/"
-        }
-	}
+  "name": "crcms/file-upload",
+  "keywords": [
+    "php",
+    "upload",
+    "laravel upload",
+    "plupload"
+  ],
+  "description": "php file upload",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "crcms",
+      "email": "crcms@crcms.cn"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "illuminate/config": "^5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "CrCms\\Upload\\": "src/"
+    }
+  }
 }
