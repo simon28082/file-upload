@@ -2,11 +2,12 @@
 
 namespace CrCms\Upload\Traits;
 
+use CrCms\Upload\Exceptions\TypeErrorException;
+
 /**
  * Class MimeTrait
  *
  * @package CrCms\Upload\Traits
- * @author simon
  */
 trait MimeTrait
 {
@@ -835,5 +836,21 @@ trait MimeTrait
     public function getExtensionMime(string $extension): string
     {
         return $this->mimes[$extension] ?? '';
+    }
+
+    /**
+     * @param string $fileMime
+     * @return MimeTrait
+     */
+    public function checkMime(string $fileMime): self
+    {
+        if ($this->checkMime) {
+            $mime = $this->getExtensionMime($this->extension);
+            if ($mime !== $fileMime) {
+                throw new TypeErrorException($this->name, 'mime');
+            }
+        }
+
+        return $this;
     }
 }

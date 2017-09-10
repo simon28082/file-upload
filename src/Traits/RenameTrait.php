@@ -6,7 +6,6 @@ namespace CrCms\Upload\Traits;
  * Class RenameTrait
  *
  * @package CrCms\Upload\Traits
- * @author simon
  */
 trait RenameTrait
 {

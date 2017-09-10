@@ -13,5 +13,5 @@ interface FileUpload
     /**
      * @return array
      */
-    public function upload(): array;
+    public function upload(array $file): array;
 }

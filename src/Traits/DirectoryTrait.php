@@ -6,7 +6,6 @@ namespace CrCms\Upload\Traits;
  * Class DirectoryTrait
  *
  * @package CrCms\Upload\Traits
- * @author simon
  */
 trait DirectoryTrait
 {

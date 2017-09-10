@@ -2,11 +2,12 @@
 
 namespace CrCms\Upload\Traits;
 
+use CrCms\Upload\Exceptions\TypeErrorException;
+
 /**
  * Class ExtensionTrait
  *
  * @package CrCms\Upload\Traits
- * @author simon
  */
 trait ExtensionTrait
 {
@@ -61,12 +62,12 @@ trait ExtensionTrait
      * @param string $extension
      * @return ExtensionTrait
      */
-    public function setExtension(string $extension): self
-    {
-        $this->extensions[] = $extension;
-
-        return $this;
-    }
+//    public function setExtension(string $extension): self
+//    {
+//        $this->extensions[] = $extension;
+//
+//        return $this;
+//    }
 
     /**
      * @return array
@@ -74,5 +75,18 @@ trait ExtensionTrait
     public function getExtensions(): array
     {
         return $this->extensions;
+    }
+
+    /**
+     * @param string $extension
+     * @return ExtensionTrait
+     */
+    public function checkExtension(string $extension): self
+    {
+        if ($this->checkExtension && !in_array(strtolower($extension), $this->getExtensions(), true)) {
+            throw new TypeErrorException($this->name, 'extension');
+        }
+
+        return $this;
     }
 }

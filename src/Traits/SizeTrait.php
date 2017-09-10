@@ -2,11 +2,12 @@
 
 namespace CrCms\Upload\Traits;
 
+use CrCms\Upload\Exceptions\SizeException;
+
 /**
  * Class SizeTrait
  *
  * @package CrCms\Upload\Traits
- * @author simon
  */
 trait SizeTrait
 {
@@ -31,6 +32,19 @@ trait SizeTrait
     public function getFileSize(): int
     {
         return $this->fileSize;
+    }
+
+    /**
+     * @param int $size
+     * @return SizeTrait
+     */
+    public function checkSize(int $size): self
+    {
+        if ($this->getFileSize() < $size) {
+            throw new SizeException($this->name);
+        }
+
+        return $this;
     }
 
     /**
