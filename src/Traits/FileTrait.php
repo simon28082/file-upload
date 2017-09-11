@@ -222,6 +222,8 @@ trait FileTrait
 
         $this->setFile($file['tmp_name']);
 
+        $this->setNewName($file['name']);
+
         $this->setFullPath($file['name']);
 
         return $this;
@@ -259,8 +261,8 @@ trait FileTrait
     public function setFullPath(string $name): self
     {
         $dirs = $this->getHashDir($name);
-        $newName = $this->getNewName($name);
-        $this->fullPath = $this->path . DIRECTORY_SEPARATOR . $dirs . $newName;
+
+        $this->fullPath = $this->path . DIRECTORY_SEPARATOR . $dirs . $this->getNewName();
 
         return $this;
     }

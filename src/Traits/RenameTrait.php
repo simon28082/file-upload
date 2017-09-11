@@ -43,12 +43,8 @@ trait RenameTrait
      * @param string $oldName
      * @return string
      */
-    public function getNewName(string $oldName = ''): string
+    public function getNewName(): string
     {
-        if (empty($this->newName) && !empty($oldName)) {
-            return $this->getDefaultNewName($oldName);
-        }
-
         return $this->newName;
     }
 
@@ -58,7 +54,11 @@ trait RenameTrait
      */
     public function setNewName(string $oldName, callable $callable = null): self
     {
-        $this->newName = ($this->isRename && is_callable($callable)) ? $callable($oldName) : $oldName;
+        if ($this->isRename) {
+            $this->newName = is_callable($callable) ? $callable($oldName) : $this->getDefaultNewName($oldName);
+        } else {
+            $this->newName = $oldName;
+        }
 
         return $this;
     }

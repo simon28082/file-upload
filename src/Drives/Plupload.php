@@ -8,6 +8,7 @@ use CrCms\Upload\File;
 use CrCms\Upload\Traits\ExtensionTrait;
 use CrCms\Upload\Traits\FileTrait;
 use CrCms\Upload\Traits\MimeTrait;
+use CrCms\Upload\Traits\RenameTrait;
 use CrCms\Upload\Traits\SizeTrait;
 use Illuminate\Config\Repository as Config;
 
@@ -72,13 +73,25 @@ class PlUpload implements FileUpload
     }
 
     /**
+     * @param string $oldName
+     * @param callable|null $callable
+     * @return PlUpload
+     */
+    public function setNewName(string $oldName, callable $callable = null): self
+    {
+        $this->newName = $_REQUEST[$this->config->get('upload.drives.plupload.new_name')];
+        return $this;
+    }
+
+    /**
      * @param array $file
      * @return FileTrait
      */
     protected function setUploadFile(array $file)
     {
         $file['name'] = $_REQUEST[$this->config->get('upload.drives.plupload.old_name')];
-        return $this->parentSetUploadFile($file);
+        $result = $this->parentSetUploadFile($file);
+        return $result;
     }
 
     /**
@@ -104,11 +117,11 @@ class PlUpload implements FileUpload
      */
     protected function setChunking()
     {
-        $chunkName = $_REQUEST[$this->config->get('upload.drives.plupload.chunk_name')];
-        $chunksName = $_REQUEST[$this->config->get('upload.drives.plupload.chunks_name')];
+        $chunkName = $this->config->get('upload.drives.plupload.chunk_name');
+        $chunksName = $this->config->get('upload.drives.plupload.chunks_name');
 
-        $this->chunk = isset($_POST[$chunkName]) ? intval($_POST[$chunkName]) : 0;
-        $this->chunks = isset($_POST[$chunksName]) ? intval($_POST[$chunksName]) : 0;
+        $this->chunk = isset($_REQUEST[$chunkName]) ? intval($_REQUEST[$chunkName]) : 0;
+        $this->chunks = isset($_REQUEST[$chunksName]) ? intval($_REQUEST[$chunksName]) : 0;
     }
 
     /**
@@ -156,6 +169,7 @@ class PlUpload implements FileUpload
 
         //上传完成
         if ($this->status && (!$this->chunks || $this->chunk == $this->chunks - 1)) {
+
             rename($this->getTempFile(), $this->getFullPath());
             return new File($this->getFullPath());
         }
