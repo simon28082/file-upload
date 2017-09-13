@@ -153,8 +153,10 @@ class WebUpload implements FileUpload
         $this->writeFile();
 
         //上传完成
-        if (count(glob("{$this->getFullPath()}*.part")) === $this->chunks) {
-            return $this->completeHandle();
+        $allPart = count(glob("{$this->getFullPath()}*.part"));
+        //一次传完和块上传判断
+        if ($allPart === $this->chunks || ($this->chunks === 0 && $this->chunk === 0 && $allPart > 0)) {
+            return $this->completeHandle($this->chunks === 0 ? $allPart : $this->chunks);
         }
 
         return null;
@@ -163,7 +165,7 @@ class WebUpload implements FileUpload
     /**
      * @return File
      */
-    protected function completeHandle(): File
+    protected function completeHandle(int $chunks): File
     {
         $file = $this->getFullPath();
 
@@ -172,7 +174,7 @@ class WebUpload implements FileUpload
         }
 
         if (flock($out, LOCK_EX)) {
-            for ($index = 0; $index < $this->chunks; $index++) {
+            for ($index = 0; $index < $chunks; $index++) {
                 if (!$in = @fopen($this->getTempFile($index), "rb")) {
                     break;
                 }
