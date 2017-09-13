@@ -1,4 +1,12 @@
 <?php
+/**
+ * Applies to plupload 1.x-2.x
+ *
+ * Related license, follow the Plupload license
+ *
+ * License: http://www.plupload.com/license/agplv3
+ * License: http://www.plupload.com/license/oem
+ */
 
 namespace CrCms\Upload\Drives;
 
@@ -8,7 +16,6 @@ use CrCms\Upload\File;
 use CrCms\Upload\Traits\ExtensionTrait;
 use CrCms\Upload\Traits\FileTrait;
 use CrCms\Upload\Traits\MimeTrait;
-use CrCms\Upload\Traits\RenameTrait;
 use CrCms\Upload\Traits\SizeTrait;
 use Illuminate\Config\Repository as Config;
 
@@ -105,8 +112,7 @@ class PlUpload implements FileUpload
 
         /* 一个是验证总大小,一个是验证块大小 */
         $this->checkSize($this->size);
-        //intval($_REQUEST[$this->config->get('upload.drives.plupload.size_name')])
-        $this->checkSize($this->getTempFileSize());
+        $this->checkSize(intval($_REQUEST[$this->config->get('upload.drives.plupload.size_name')]));
 
         $this->checkExtension($this->extension);
 
@@ -182,19 +188,6 @@ class PlUpload implements FileUpload
     protected function getTempFile(): string
     {
         return $this->getFullPath() . '.part';
-    }
-
-    /**
-     * @return int
-     */
-    protected function getTempFileSize(): int
-    {
-        $tmpFile = $this->getTempFile();
-        if (file_exists($tmpFile)) {
-            return filesize($this->getTempFile());
-        }
-
-        return 0;
     }
 
     /**
