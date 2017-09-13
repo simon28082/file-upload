@@ -21,13 +21,7 @@ return [
     ],
 
     'drives' => [
-        'plupload' => [
-            'chunk_name' => 'chunk',
-            'chunks_name' => 'chunks',
-            'old_name' => 'old_name',
-            'size_name' => 'orig_size',
-            'new_name' => 'name',
-        ],
+
         'webupload' => [
             'chunk_name' => 'chunk',
             'chunks_name' => 'chunks',
