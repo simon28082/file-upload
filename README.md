@@ -22,7 +22,7 @@
             ]
         ],
         'test' => [
-            'driver' => \CrCms\Upload\Drives\DefaultUpload::class,//
+            'driver' => \CrCms\Upload\Drives\WebUpload::class,//
             'options' => [
                 'setFileSize' => 1024 * 1024 * 2,
                 'setRename' => true,
@@ -36,11 +36,11 @@
     ],
 
     'drives' => [
-        'plupload' => [
+        'webupload' => [
             'chunk_name' => 'chunk',
             'chunks_name' => 'chunks',
-            'old_name' => 'old_name',
-            'size_name' => 'size',
+            'size_name' => 'orig_size',
+            'new_name' => 'new_name',
         ],
     ],
 
