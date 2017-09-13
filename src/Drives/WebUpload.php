@@ -8,7 +8,6 @@ use CrCms\Upload\File;
 use CrCms\Upload\Traits\ExtensionTrait;
 use CrCms\Upload\Traits\FileTrait;
 use CrCms\Upload\Traits\MimeTrait;
-use CrCms\Upload\Traits\RenameTrait;
 use CrCms\Upload\Traits\SizeTrait;
 use Illuminate\Config\Repository as Config;
 
@@ -89,6 +88,7 @@ class PlUpload implements FileUpload
      */
     protected function setUploadFile(array $file)
     {
+        dd($file);
         $file['name'] = $_REQUEST[$this->config->get('upload.drives.plupload.old_name')];
         $result = $this->parentSetUploadFile($file);
         return $result;

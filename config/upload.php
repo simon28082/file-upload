@@ -25,8 +25,8 @@ return [
             'chunk_name' => 'chunk',
             'chunks_name' => 'chunks',
             'old_name' => 'old_name',
-            'size_name' => 'orig_size',
-            'new_name' => 'name',
+            //'size_name' => 'orig_size',
+            'new_name' => 'new_name',
         ],
     ],
 

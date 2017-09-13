@@ -214,7 +214,7 @@ trait FileTrait
 
         $this->setError($file['error']);
 
-        $this->setSize($file['size']);
+        $this->setSize(filesize($file['tmp_name']));
 
         $this->setExtension(pathinfo($this->name, PATHINFO_EXTENSION));
 

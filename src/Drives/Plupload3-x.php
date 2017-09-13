@@ -46,6 +46,16 @@ class PlUpload implements FileUpload
     protected $config;
 
     /**
+     * @var bool
+     */
+    protected $combineChunksOnComplete = true;
+
+    /**
+     * @var resource|null
+     */
+    protected $out = null;
+
+    /**
      * PlUpload constructor.
      * @param Config $config
      */
@@ -106,7 +116,7 @@ class PlUpload implements FileUpload
         /* 一个是验证总大小,一个是验证块大小 */
         $this->checkSize($this->size);
         //intval($_REQUEST[$this->config->get('upload.drives.plupload.size_name')])
-        $this->checkSize($this->getTempFileSize());
+        $this->checkSize(intval($_REQUEST[$this->config->get('upload.drives.plupload.size_name')]));
 
         $this->checkExtension($this->extension);
 
@@ -133,7 +143,7 @@ class PlUpload implements FileUpload
         //块上传大小
         $this->setChunking();
 
-        //读取并写入数据流
+        /*//读取并写入数据流
         if (!(boolean)$fpIn = fopen($this->temp, "rb")) {
             throw new UploadException($this->name, UploadException::READ_FILE_STREAM_ERR);
         }
@@ -155,8 +165,206 @@ class PlUpload implements FileUpload
 
         //关闭文件流
         fclose($fpOut);
-        fclose($fpIn);
+        fclose($fpIn);*/
+
+
+
+        $this->lockTheFile($this->getFullPath());
+
+        // Write file or chunk to appropriate temp location
+        if ($this->chunks) {
+            $result = $this->handleChunk($this->chunk, $this->getFullPath());
+        } else {
+            $result = $this->handleFile($this->getFullPath());
+        }
+dd($result);
+        $this->unlockTheFile($this->getFullPath());
     }
+
+    protected function handleFile($file_name)
+    {
+        $file_path = $file_name;
+        $tmp_path = $this->writeUploadTo($this->temp,$file_path . ".part");
+        return $this->rename($tmp_path, $file_path);
+    }
+
+    protected function handleChunk($chunk, $file_name)
+    {
+        $file_path = $file_name;
+        $this->createDir("$file_path.dir.part");
+        $chunk_path = $this->writeUploadTo($this->temp,"$file_path.dir.part" . DIRECTORY_SEPARATOR . "$chunk.part");
+
+        if ($this->combineChunksOnComplete && $this->isLastChunk($file_name)) {
+            return $this->combineChunksFor($file_name);
+        }
+
+        return array(
+            'name' => $file_name,
+            'path' => $chunk_path,
+            'chunk' => $chunk,
+            'size' => filesize($chunk_path)
+        );
+    }
+
+    protected function rename($tmp_path, $file_path)
+    {
+        // Upload complete write a temp file to the final destination
+//        if (!$this->fileIsOK($tmp_path)) {
+//            if ($this->conf['cleanup']) {
+//                @unlink($tmp_path);
+//            }
+//            throw new Exception('', PLUPLOAD_SECURITY_ERR);
+//        }
+
+        if (rename($tmp_path, $file_path)) {
+
+            return array(
+                'name' => basename($file_path),
+                'path' => $file_path,
+                'size' => filesize($file_path)
+            );
+        } else {
+            return false;
+        }
+    }
+
+    protected function writeChunksToFile($chunk_dir, $target_path)
+    {
+        $chunk_paths = array();
+
+        for ($i = 0; $i < $this->chunks; $i++) {
+            $chunk_path = $chunk_dir . DIRECTORY_SEPARATOR . "$i.part";
+            if (!file_exists($chunk_path)) {
+                throw new \Exception('error');
+            }
+            //$chunk_paths[] = $chunk_path;
+            $this->writeToFile($chunk_path, $target_path, 'ab');
+        }
+
+
+
+//        $this->log("$chunk_dir combined into $target_path");
+//
+//        // Cleanup
+//        if ($this->conf['cleanup']) {
+//            $this->rrmdir($chunk_dir);
+//        }
+
+        return $target_path;
+    }
+
+    protected function filesize($file)
+    {
+        if (!file_exists($file)) {
+            return false;
+        }
+
+        static $iswin;
+        if (!isset($iswin)) {
+            $iswin = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN');
+        }
+
+        static $exec_works;
+        if (!isset($exec_works)) {
+            $exec_works = (function_exists('exec') && !ini_get('safe_mode') && @exec('echo EXEC') == 'EXEC');
+        }
+
+        // try a shell command
+        if ($exec_works) {
+            $cmd = ($iswin) ? "for %F in (\"$file\") do @echo %~zF" : "stat -c%s \"$file\"";
+            @exec($cmd, $output);
+            if (is_array($output) && is_numeric($size = trim(implode("\n", $output)))) {
+                $this->log("filesize obtained via exec.");
+                return $size;
+            }
+        }
+
+        // try the Windows COM interface
+        if ($iswin && class_exists("COM")) {
+            try {
+                $fsobj = new COM('Scripting.FileSystemObject');
+                $f = $fsobj->GetFile(realpath($file));
+                $size = $f->Size;
+            } catch (Exception $e) {
+                $size = null;
+            }
+            if (ctype_digit($size)) {
+                $this->log("filesize obtained via Scripting.FileSystemObject.");
+                return $size;
+            }
+        }
+
+        // if everything else fails
+        $this->log("filesize obtained via native filesize.");
+        return @filesize($file);
+    }
+
+    function combineChunksFor($file_name)
+    {
+        $file_path = $file_name;
+        if (!$tmp_path = $this->writeChunksToFile("$file_path.dir.part", "$file_path.part")) {
+            return false;
+        }
+        return $this->rename($tmp_path, $file_path);
+    }
+
+
+    protected function writeUploadTo($tmpPath, $file_path, $mode = 'wb')
+    {
+
+        return $this->writeToFile($tmpPath, $file_path, $mode);
+    }
+
+
+    protected function writeToFile($source_path, $target_path, $mode = 'wb')
+    {
+
+        if (!$out = @fopen($target_path, $mode)) {
+            throw new \Exception( 'open error');
+        }
+
+        if (!$in = @fopen($source_path, "rb")) {
+            throw new \Exception('open error 2');
+        }
+
+        while ($buff = fread($in, 4096)) {
+            fwrite($out, $buff);
+        }
+
+        @fclose($in);
+        fflush($out);
+        @fclose($out);
+
+        return $target_path;
+    }
+
+    protected function isLastChunk($file_path)
+    {
+        $chunks = sizeof(glob("$file_path.dir.part/*.part"));
+
+        return $chunks == $this->chunks;
+    }
+
+    private function lockTheFile($file_name)
+    {
+        $this->out = fopen("{$file_name}.lock", 'w');
+        flock($this->out, LOCK_EX); // obtain blocking lock
+    }
+
+
+    /**
+     * Release the blocking lock on the specified file.
+     *
+     * @param string $file_name File to lock
+     */
+    private function unlockTheFile($file_name)
+    {
+        if ($this->out) {
+            fclose($this->out);
+        }
+        @unlink("{$file_name}.lock");
+    }
+
 
     /**
      * @return File
@@ -234,3 +442,8 @@ class PlUpload implements FileUpload
 //        }
 //    }
 }
+
+
+
+
+
