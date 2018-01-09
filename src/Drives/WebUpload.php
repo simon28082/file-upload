@@ -5,6 +5,8 @@
  * Related license, follow the webUpload license
  *
  * License: https://github.com/fex-team/webuploader/blob/master/LICENSE
+ *
+ * Please note: file segmentation upload Please set WebUpload "threads:1"
  */
 
 namespace CrCms\Upload\Drives;

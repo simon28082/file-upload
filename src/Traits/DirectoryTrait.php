@@ -63,6 +63,6 @@ trait DirectoryTrait
     {
         if (is_dir($dir) || @mkdir($dir, $mode)) return true;
         if (!@$this->createDir(dirname($dir), $mode)) return false;
-        return mkdir($dir, $mode);
+        return @mkdir($dir, $mode);
     }
 }
