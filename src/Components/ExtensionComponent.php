@@ -1,34 +1,43 @@
 <?php
 
-namespace CrCms\Upload\Traits;
-
-use CrCms\Upload\Exceptions\TypeErrorException;
+namespace CrCms\Upload\Components;
 
 /**
- * Class ExtensionTrait
- *
- * @package CrCms\Upload\Traits
+ * Class ExtensionComponent
+ * @package CrCms\Upload\Components
  */
-trait ExtensionTrait
+class ExtensionComponent extends AbstractComponent
 {
     /**
      * 允许的文件扩展名
+     *
      * @var array
-     * @author simon
      */
     protected $extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
 
     /**
      * 是否验证文件扩展名
+     *
      * @var boolean
-     * @author simon
      */
     protected $checkExtension = true;
 
     /**
-     * 是否验证扩展名
+     * ExtensionComponent constructor.
+     * @param array $extensions
      * @param bool $isCheck
-     * @return ExtensionTrait
+     */
+    public function __construct(array $extensions, bool $isCheck = true)
+    {
+        $this->setExtensions($extensions);
+        $this->setCheckExtension($isCheck);
+    }
+
+    /**
+     * 是否验证扩展名
+     *
+     * @param bool $isCheck
+     * @return ExtensionComponent
      */
     public function setCheckExtension(bool $isCheck): self
     {
@@ -46,9 +55,8 @@ trait ExtensionTrait
     }
 
     /**
-     * set allow file extensions
      * @param array $extensions
-     * @return ExtensionTrait
+     * @return ExtensionComponent
      */
     public function setExtensions(array $extensions): self
     {
@@ -58,16 +66,17 @@ trait ExtensionTrait
     }
 
     /**
-     * set allow file extension
      * @param string $extension
-     * @return ExtensionTrait
+     * @return ExtensionComponent
      */
-//    public function setExtension(string $extension): self
-//    {
-//        $this->extensions[] = $extension;
-//
-//        return $this;
-//    }
+    public function addExtension(string $extension): self
+    {
+        if (!in_array($extension, $this->extensions, true)) {
+            $this->extensions[] = $extension;
+        }
+
+        return $this;
+    }
 
     /**
      * @return array
@@ -79,14 +88,14 @@ trait ExtensionTrait
 
     /**
      * @param string $extension
-     * @return ExtensionTrait
+     * @return bool
      */
-    public function checkExtension(string $extension): self
+    public function checkExtension(string $extension): bool
     {
-        if ($this->checkExtension && !in_array(strtolower($extension), $this->getExtensions(), true)) {
-            throw new TypeErrorException($this->name, 'extension');
+        if ($this->checkExtension) {
+            return in_array(strtolower($extension), $this->getExtensions(), true);
         }
 
-        return $this;
+        return true;
     }
 }

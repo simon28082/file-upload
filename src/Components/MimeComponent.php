@@ -1,29 +1,29 @@
 <?php
 
-namespace CrCms\Upload\Traits;
-
-use CrCms\Upload\Exceptions\TypeErrorException;
+namespace CrCms\Upload\Components;
 
 /**
- * Class MimeTrait
- *
- * @package CrCms\Upload\Traits
+ * Class MimeComponent
+ * @package CrCms\Upload\Components
  */
-trait MimeTrait
+class MimeComponent extends AbstractComponent
 {
     /**
      * 是否验证mime类型
      * @var boolean
-     * @author simon
      */
-    protected $checkMime = true;//ok
+    protected $checkMime = true;
+
+    /**
+     * @var array
+     */
+    protected $mimes = [];
 
     /**
      * 允许的文件mime类型
      * @var array
-     * @author simon
      */
-    protected $mimes = [
+    protected $allMimes = [
         'ez' => 'application/andrew-inset',
         'aw' => 'application/applixware',
         'atom' => 'application/atom+xml',
@@ -792,8 +792,19 @@ trait MimeTrait
     ];
 
     /**
+     * MimeComponent constructor.
+     * @param array $mimes
      * @param bool $isCheck
-     * @return MimeTrait
+     */
+    public function __construct(array $mimes = [], bool $isCheck)
+    {
+        $this->setMimes($mimes);
+        $this->setCheckMime($isCheck);
+    }
+
+    /**
+     * @param bool $isCheck
+     * @return MimeComponent
      */
     public function setCheckMime(bool $isCheck): self
     {
@@ -812,11 +823,11 @@ trait MimeTrait
 
     /**
      * @param array $mimes
-     * @return MimeTrait
+     * @return MimeComponent
      */
     public function setMimes(array $mimes): self
     {
-        $this->mimes = array_merge($this->mimes, $mimes);
+        $this->mimes = $mimes;
 
         return $this;
     }
@@ -835,22 +846,19 @@ trait MimeTrait
      */
     public function getExtensionMime(string $extension): string
     {
-        return $this->mimes[$extension] ?? '';
+        return $this->allMimes[$extension] ?? '';
     }
 
     /**
-     * @param string $fileMime
-     * @return MimeTrait
+     * @param string $mime
+     * @return bool
      */
-    public function checkMime(string $fileMime): self
+    public function checkMime(string $mime): bool
     {
         if ($this->checkMime) {
-            $mime = $this->getExtensionMime($this->extension);
-            if ($mime !== $fileMime) {
-                throw new TypeErrorException($this->name, 'mime');
-            }
+            return in_array($mime, $this->allMimes, true);
         }
 
-        return $this;
+        return true;
     }
 }

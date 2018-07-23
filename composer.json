@@ -4,7 +4,7 @@
     "php",
     "upload",
     "laravel upload",
-    "plupload"
+    "webupload"
   ],
   "description": "php file upload",
   "license": "MIT",
@@ -15,12 +15,17 @@
     }
   ],
   "require": {
-    "php": ">=7.0.0",
-    "illuminate/config": "^5.2"
+    "php": ">=7.1",
+    "illuminate/config": "^5.5"
   },
   "autoload": {
     "psr-4": {
       "CrCms\\Upload\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CrCms\\Upload\\Tests\\": "tests/"
     }
   }
 }

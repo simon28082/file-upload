@@ -2,13 +2,15 @@
 
 namespace CrCms\Upload\Exceptions;
 
+use RuntimeException;
+
 /**
  * Class UploadException
  *
  * @package CrCms\Upload\Exceptions
  * @author simon
  */
-class UploadException extends \RuntimeException
+class UploadException extends RuntimeException
 {
     /**
      * 非正常上传文件

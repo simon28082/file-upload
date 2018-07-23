@@ -9,7 +9,7 @@
  * Please note: file segmentation upload Please set WebUpload "threads:1"
  */
 
-namespace CrCms\Upload\Drives;
+namespace CrCms\Upload\Drivers\Uploader;
 
 use CrCms\Upload\Contracts\FileUpload;
 use CrCms\Upload\Exceptions\UploadException;
@@ -20,7 +20,7 @@ use CrCms\Upload\Traits\MimeTrait;
 use CrCms\Upload\Traits\SizeTrait;
 use Illuminate\Config\Repository as Config;
 
-class WebUpload implements FileUpload
+class WebUploader implements FileUpload
 {
     use SizeTrait, MimeTrait, ExtensionTrait;
     use FileTrait {

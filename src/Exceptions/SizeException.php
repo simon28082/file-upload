@@ -2,13 +2,15 @@
 
 namespace CrCms\Upload\Exceptions;
 
+use RuntimeException;
+
 /**
  * Class SizeException
  *
  * @package CrCms\Upload\Exceptions
  * @author simon
  */
-class SizeException extends \RuntimeException
+class SizeException extends RuntimeException
 {
     /**
      * SizeException constructor.

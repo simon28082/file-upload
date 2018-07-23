@@ -2,6 +2,9 @@
 
 namespace CrCms\Upload;
 
+use SplFileInfo;
+use BadMethodCallException;
+
 /**
  * Class File
  *
@@ -11,7 +14,7 @@ namespace CrCms\Upload;
 class File
 {
     /**
-     * @var \SplFileInfo
+     * @var SplFileInfo
      */
     protected $splFileInfo;
 
@@ -21,18 +24,8 @@ class File
      */
     public function __construct(string $filePath)
     {
-        $this->splFileInfo = new \SplFileInfo($filePath);
+        $this->splFileInfo = new SplFileInfo($filePath);
     }
-
-    /**
-     * @param string $filePath
-     * @return File
-     */
-    /*public function setFile(string $filePath): self
-    {
-
-        return $this;
-    }*/
 
     /**
      * @return string
@@ -54,6 +47,6 @@ class File
             return call_user_func_array([$this->splFileInfo, $name], $arguments);
         }
 
-        throw new \BadMethodCallException("method [$name] is not exists");
+        throw new BadMethodCallException("Method [$name] is not exists");
     }
 }

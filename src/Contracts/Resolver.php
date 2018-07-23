@@ -3,15 +3,14 @@
 namespace CrCms\Upload\Contracts;
 
 /**
- * Interface FileUpload
- *
+ * Interface Resolve
  * @package CrCms\Upload\Contracts
  */
-interface FileUpload
+interface Resolver
 {
     /**
-     * @param array $file
+     * @param array $files
      * @return array
      */
-    public function upload(array $file): array;
+    public function resolve(array $files): array;
 }

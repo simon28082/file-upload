@@ -1,6 +1,6 @@
 <?php
 
-namespace CrCms\Upload\Drives;
+namespace CrCms\Upload\Drivers;
 
 use CrCms\Upload\Contracts\FileUpload;
 use CrCms\Upload\Exceptions\UploadException;
@@ -13,9 +13,9 @@ use CrCms\Upload\Traits\SizeTrait;
 /**
  * Class DefaultUpload
  *
- * @package CrCms\Upload\Drives
+ * @package CrCms\Upload\Drivers
  */
-class DefaultUpload implements FileUpload
+class DefaultUpload extends AbstractUpload implements FileUpload
 {
     use FileTrait, ExtensionTrait, MimeTrait, SizeTrait;
 

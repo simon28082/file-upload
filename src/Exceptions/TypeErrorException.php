@@ -2,13 +2,15 @@
 
 namespace CrCms\Upload\Exceptions;
 
+use RuntimeException;
+
 /**
  * Class TypeErrorException
  *
  * @package CrCms\Upload\Exceptions
  * @author simon
  */
-class TypeErrorException extends \RuntimeException
+class TypeErrorException extends RuntimeException
 {
     /**
      * TypeErrorException constructor.
