@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors',true);
+ini_set('upload_tmp_dir','./tmp');
+
 if (isset($_POST) && !empty($_POST)) {
 
     require '../vendor/autoload.php';
@@ -7,9 +11,9 @@ if (isset($_POST) && !empty($_POST)) {
 
     $config = new \Illuminate\Config\Repository(['upload'=>$config]);
 
-    $upload = new \CrCms\Upload\FileUpload($config);
+    $upload = new CrCms\Upload\Uploader($config);
 
-    $file = $upload->upload();
+    $file = $upload->upload($_FILES);
     var_dump($file);
 }
 ?>

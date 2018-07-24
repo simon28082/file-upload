@@ -796,7 +796,7 @@ class MimeComponent extends AbstractComponent
      * @param array $mimes
      * @param bool $isCheck
      */
-    public function __construct(array $mimes = [], bool $isCheck)
+    public function __construct(array $mimes, bool $isCheck)
     {
         $this->setMimes($mimes);
         $this->setCheckMime($isCheck);
@@ -856,7 +856,7 @@ class MimeComponent extends AbstractComponent
     public function checkMime(string $mime): bool
     {
         if ($this->checkMime) {
-            return in_array($mime, $this->allMimes, true);
+            return in_array($mime, $this->mimes, true);
         }
 
         return true;

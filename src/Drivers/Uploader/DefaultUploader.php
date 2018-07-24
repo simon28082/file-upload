@@ -27,13 +27,13 @@ class DefaultUploader extends AbstractUploader implements Uploader
     }
 
     /**
-     *
+     * @return void
      */
     protected function createUploadedFile(): void
     {
         $this->pathComponent->createIfNotExists();
 
-        if (!move_uploaded_file($this->uploadFile->getPath(), $this->pathComponent->getFullPath())) {
+        if (!move_uploaded_file($this->uploadFile->getPathname(), $this->pathComponent->getFullPath())) {
             throw new UploadException($this->uploadInfo['name'], UploadException::MOVE_TMP_FILE_ERR);
         }
 
@@ -48,7 +48,7 @@ class DefaultUploader extends AbstractUploader implements Uploader
         $list = ['UploadedFile', 'UploadSelf', 'Size', 'Extension', 'Mime'];
 
         array_map(function ($value) {
-            call_user_func("check{$value}");
+            call_user_func([$this, "check{$value}"]);
         }, $list);
     }
 }

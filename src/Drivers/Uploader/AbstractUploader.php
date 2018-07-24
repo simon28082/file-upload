@@ -81,20 +81,22 @@ abstract class AbstractUploader
 
     /**
      * AbstractUploader constructor.
+     * @param array $uploadInfo
      * @param array $config
      */
     public function __construct(array $uploadInfo, array $config)
     {
         $this->config = $config;
         $this->uploadInfo = $uploadInfo;
+
         $this->uploadFile = new File($this->uploadInfo['tmp_name']);
 
         $this->sizeComponent = new SizeComponent($this->config['size']);
-        $this->extensionComponent = new ExtensionComponent($this->config['extensions'], $this->config['check_mime']);
+        $this->extensionComponent = new ExtensionComponent($this->config['extensions'], $this->config['check_extension']);
         $this->mimeComponent = new MimeComponent($this->config['mimes'], $this->config['check_mime']);
-        $this->renameComponent = new RenameComponent($this->config['rename']);
+        $this->renameComponent = new RenameComponent($this->config['rename'], $this->uploadInfo['name']);
         $this->directoryComponent = new DirectoryLayerComponent($this->uploadInfo['name'], $this->config['directory_layer']);
-        $this->pathComponent = new PathComponent($this->config['path'], $this->directoryComponent);
+        $this->pathComponent = new PathComponent($this->config['path'], $this->renameComponent, $this->directoryComponent);
     }
 
     /**
@@ -111,7 +113,7 @@ abstract class AbstractUploader
     }
 
     /**
-     *
+     * @return void
      */
     protected function uploadedTime(): void
     {
@@ -141,8 +143,8 @@ abstract class AbstractUploader
      */
     public function checkUploadedFile(): self
     {
-        if (!is_uploaded_file($this->uploadFile->getSize())) {
-            throw new UploadException($this->uploadFile['name'], UploadException::IS_NOT_UPLOAD_FILE);
+        if (!is_uploaded_file($this->uploadInfo['tmp_name'])) {
+            throw new UploadException($this->uploadInfo['name'], UploadException::IS_NOT_UPLOAD_FILE);
         }
 
         return $this;
@@ -153,8 +155,8 @@ abstract class AbstractUploader
      */
     public function checkUploadSelf(): self
     {
-        if ($this->uploadFile['error'] !== UPLOAD_ERR_OK) {
-            throw new UploadException($this->uploadFile['name'], $this->error);
+        if ($this->uploadInfo['error'] !== UPLOAD_ERR_OK) {
+            throw new UploadException($this->uploadInfo['name'], $this->uploadFile['error']);
         }
 
         return $this;
@@ -165,8 +167,8 @@ abstract class AbstractUploader
      */
     public function checkSize(): self
     {
-        if (!$this->sizeComponent->checkSize($this->uploadFile->getSize())) {
-            throw new SizeException($this->uploadFile['name']);
+        if (!$this->sizeComponent->checkSize($this->uploadInfo['size'])) {
+            throw new SizeException($this->uploadInfo['name']);
         }
 
         return $this;
@@ -178,7 +180,7 @@ abstract class AbstractUploader
     public function checkMime(): self
     {
         if (!$this->mimeComponent->checkMime($this->uploadFile->getMime())) {
-            throw new TypeErrorException($this->uploadFile['name'], 'mime');
+            throw new TypeErrorException($this->uploadInfo['name'], 'mime');
 
         }
 
@@ -190,8 +192,8 @@ abstract class AbstractUploader
      */
     public function checkExtension(): self
     {
-        if (!$this->extensionComponent->checkExtension($this->uploadFile['extension'])) {
-            throw new TypeErrorException($this->uploadFile['name'], 'extension');
+        if (!$this->extensionComponent->checkExtension(pathinfo($this->uploadInfo['name'], PATHINFO_EXTENSION))) {
+            throw new TypeErrorException($this->uploadInfo['name'], 'extension');
         }
 
         return $this;

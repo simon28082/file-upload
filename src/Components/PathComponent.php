@@ -15,63 +15,120 @@ namespace CrCms\Upload\Components;
  */
 class PathComponent
 {
+    /**
+     * @var string
+     */
     protected $path;
 
+    /**
+     * @var DirectoryLayerComponent
+     */
     protected $directoryLayer;
 
+    /**
+     * @var string
+     */
     protected $fullPath;
 
-    public function __construct(string $path, ?DirectoryLayerComponent $component = null)
+    /**
+     * @var RenameComponent
+     */
+    protected $rename;
+
+    /**
+     * PathComponent constructor.
+     * @param string $path
+     * @param RenameComponent $rename
+     * @param DirectoryLayerComponent $directoryLayer
+     */
+    public function __construct(string $path, RenameComponent $rename, DirectoryLayerComponent $directoryLayer)
     {
         $this->setPath($path);
-        $component ? $this->setLayerComponent($component) : null;
+        $this->setRename($rename);
+        $this->setLayerComponent($directoryLayer);
         $this->setFullPath($this->fullPath());
     }
 
-    public function setFullPath(string $path)
+    /**
+     * @param RenameComponent $rename
+     * @return PathComponent
+     */
+    public function setRename(RenameComponent $rename): self
+    {
+        $this->rename = $rename;
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     * @return PathComponent
+     */
+    public function setFullPath(string $path): self
     {
         $this->fullPath = $path;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFullPath(): string
     {
         return $this->fullPath;
     }
 
-    public function setPath(string $path)
+    /**
+     * @param string $path
+     * @return PathComponent
+     */
+    public function setPath(string $path): self
     {
         $this->path = rtrim($path, '/');
         return $this;
     }
 
-    public function setLayerComponent(DirectoryLayerComponent $component)
+    /**
+     * @param DirectoryLayerComponent $component
+     * @return PathComponent
+     */
+    public function setLayerComponent(DirectoryLayerComponent $component): self
     {
         $this->directoryLayer = $component;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function fullPath(): string
     {
         $path = $this->path;
 
-        if ($this->directoryLayer instanceof DirectoryLayerComponent) {
-            $path = $path . DIRECTORY_SEPARATOR . $this->directoryLayer->getLayerDirectory();
-        }
+        $path = $path . DIRECTORY_SEPARATOR . $this->directoryLayer->getLayerDirectory();
 
-        return $path;
+        return $path . '/' . $this->rename->getNewName();
     }
 
+    /**
+     * @return bool
+     */
     public function exists(): bool
     {
-        return is_dir($this->fullPath);
+        return is_dir(dirname($this->fullPath));
     }
 
+    /**
+     * @param int $mode
+     * @return bool
+     */
     public function create(int $mode = 0755): bool
     {
-        return @mkdir($this->fullPath, $mode, true);
+        return @mkdir(dirname($this->fullPath), $mode, true);
     }
 
+    /**
+     * @return bool
+     */
     public function createIfNotExists(): bool
     {
         if (!$this->exists()) {

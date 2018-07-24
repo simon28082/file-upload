@@ -16,22 +16,42 @@ class RenameComponent extends AbstractComponent
     protected $isRename = true;
 
     /**
-     * @var
+     * @var string
      */
-    protected $newName;
-
+    protected $oldName;
 
     /**
      * @var Closure
      */
     protected $renameCallback;
 
-    public function __construct(bool $isRename, ?Closure $renameCallback = null)
+    /**
+     * RenameComponent constructor.
+     * @param bool $isRename
+     * @param string $oldName
+     * @param Closure|null $renameCallback
+     */
+    public function __construct(bool $isRename, string $oldName, ?Closure $renameCallback = null)
     {
         $this->setRename($isRename);
+        $this->setOldName($oldName);
         $this->setRenameCallback($renameCallback);
     }
 
+    /**
+     * @param string $oldName
+     * @return RenameComponent
+     */
+    public function setOldName(string $oldName): self
+    {
+        $this->oldName = $oldName;
+        return $this;
+    }
+
+    /**
+     * @param Closure|null $renameCallback
+     * @return RenameComponent
+     */
     public function setRenameCallback(?Closure $renameCallback = null): self
     {
         $this->renameCallback = $renameCallback;
@@ -63,23 +83,9 @@ class RenameComponent extends AbstractComponent
      */
     public function getNewName(): string
     {
-        return $this->newName;
-    }
-
-    /**
-     * @param string $oldName
-     * @param callable|null $callable
-     * @return RenameComponent
-     */
-    public function setNewName(string $oldName): self
-    {
-        if ($this->isRename) {
-            $this->newName = $this->renameCallback ? call_user_func($this->renameCallback, $oldName) : $this->getDefaultNewName($oldName);
-        } else {
-            $this->newName = $oldName;
-        }
-
-        return $this;
+        return $this->isRename ?
+            ($this->renameCallback ? call_user_func($this->renameCallback, $this->oldName) : $this->getDefaultNewName($this->oldName)) :
+            $this->oldName;
     }
 
     /**

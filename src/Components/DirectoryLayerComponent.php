@@ -13,25 +13,26 @@ class DirectoryLayerComponent extends AbstractComponent
      */
     protected $layer = 2;
 
+    /**
+     * @var string
+     */
     protected $name;
 
-//    protected $path;
-//
-//    protected $fullPath;
-
-    public function __construct(string $name,int $layer = 2)
+    /**
+     * DirectoryLayerComponent constructor.
+     * @param string $name
+     * @param int $layer
+     */
+    public function __construct(string $name, int $layer = 2)
     {
         $this->setName($name);
         $this->setLayer($layer);
-//        $this->setPath($path);
     }
 
-//    public function setPath(string $path)
-//    {
-//        $this->path = $path;
-//        return $this;
-//    }
-
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function setName(string $name)
     {
         $this->name = $name;
@@ -45,7 +46,7 @@ class DirectoryLayerComponent extends AbstractComponent
      */
     public function setLayer(int $layer): self
     {
-        $this->hashDirLayer = $layer;
+        $this->layer = $layer;
 
         return $this;
     }
@@ -58,7 +59,7 @@ class DirectoryLayerComponent extends AbstractComponent
         $path = '';
 
         if ($this->layer > 0) {
-            $prefix = $this->name;
+            $prefix = md5($this->name);
             for ($i = 0; $i < strlen($prefix); $i++) {
                 if ($i + 1 > $this->layer) {
                     break;
@@ -67,18 +68,6 @@ class DirectoryLayerComponent extends AbstractComponent
             }
         }
 
-        return $path;
+        return rtrim($path, '/');
     }
-//
-//    public function fullPath(): string
-//    {
-//        return $this->path . DIRECTORY_SEPARATOR . $this->layerDirectory();
-//    }
-//
-//    /**
-//     * @param string $dir
-//     * @param int $mode
-//     * @return bool
-//     */
-
 }

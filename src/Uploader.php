@@ -2,14 +2,10 @@
 
 namespace CrCms\Upload;
 
-use CrCms\Upload\Contracts\Resolver;
 use Illuminate\Contracts\Config\Repository as Config;
-use BadMethodCallException;
-use CrCms\Upload\Contracts\Uploader as UploaderContract;
 
 /**
- * Class FileUpload
- *
+ * Class Uploader
  * @package CrCms\Upload
  */
 class Uploader
@@ -20,15 +16,8 @@ class Uploader
     protected $config;
 
     /**
-     * @var UploaderContract
+     * @var array
      */
-    protected $uploader;
-
-    /**
-     * @var Resolver
-     */
-    protected $resolver;
-
     protected $configCollection;
 
     /**
@@ -49,9 +38,6 @@ class Uploader
     {
         $this->configCollection = $this->uploaderConfig($collection);
 
-//        $this->setUploader($collection['uploader'], $collection);
-//        $this->setResolver($collection['resolver']);
-
         return $this;
     }
 
@@ -61,28 +47,7 @@ class Uploader
      */
     public function upload(array $files): array
     {
-        return array_map([$this, 'uploadFile'], $this->resolver->resolve($files));
-    }
-
-    /**
-     * @param string $uploader
-     * @param array $config
-     * @return Uploader
-     */
-    public function setUploader(string $uploader, array $config): self
-    {
-        $this->uploader = Factory::upload($uploader, $config);
-        return $this;
-    }
-
-    /**
-     * @param string $resolver
-     * @return Uploader
-     */
-    public function setResolver(string $resolver): self
-    {
-        $this->resolver = Factory::resolve($resolver);
-        return $this;
+        return array_map([$this, 'uploadFile'], Factory::resolve($this->configCollection['resolver'])->resolve($files));
     }
 
     /**
@@ -93,7 +58,15 @@ class Uploader
     {
         $collection = $this->config->get("upload.collections.{$collection}");
         $defaultCollection = $this->config->get("upload.drivers.{$collection['driver']}");
-        return array_merge($defaultCollection, $collection);
+
+        $options = isset($collection['options']) ?
+            array_merge($defaultCollection['options'], $collection['options']) :
+            $defaultCollection['options'];
+
+        $collection = array_merge($defaultCollection, $collection);
+        $collection['options'] = $options;
+
+        return $collection;
     }
 
     /**
@@ -102,26 +75,6 @@ class Uploader
      */
     protected function uploadFile(array $file): array
     {
-        $uploader = Factory::upload($this->configCollection['uploader'], $file, $this->configCollection);
-        return $uploader->upload();
-        //return $this->uploader->upload($file);
-    }
-
-    /**
-     * @param string $name
-     * @param array $arguments
-     * @return $this|mixed
-     */
-    public function __call(string $name, array $arguments)
-    {
-        if (method_exists($this->uploader, $name)) {
-            $result = call_user_func_array([$this->uploader, $name], $arguments);
-            if ($result instanceof $this->uploader) {
-                return $this;
-            }
-            return $result;
-        }
-
-        throw new BadMethodCallException("method [{$name}] is not exists");
+        return Factory::upload($this->configCollection['uploader'], $file, $this->configCollection['options'])->upload();
     }
 }
